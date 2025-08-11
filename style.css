@@ -1,0 +1,83 @@
+/* ===== Global Terminal Look ===== */
+body {
+  background-color: #000;
+  color: #00ff66;
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden;
+  margin: 0;
+}
+
+/* Scanline effect */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 255, 100, 0.03) 3px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Loading screen */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#loading-text {
+  font-size: 1.2rem;
+  white-space: pre-wrap;
+}
+
+/* Password screen */
+#password-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+input[type="password"] {
+  background-color: black;
+  border: 1px solid #00ff66;
+  color: #00ff66;
+  padding: 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+}
+
+button {
+  background-color: #00ff66;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #00cc55;
+}
+
+/* Main Batcomputer */
+#batcomputer {
+  display: none;
+  padding: 20px;
+}
