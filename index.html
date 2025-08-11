@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Batcomputer Access — Riddle</title>
+
+<!-- ===== Simple CSS (inline for one-file use) ===== -->
+<style>
+  :root{
+    --bg:#000;
+    --neon:#39ff14;
+    --muted: rgba(57,255,20,0.08);
+    --mono: "Courier New", monospace;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--neon);font-family:var(--mono);}
+
+  /* full-screen containers */
+  .screen {position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;}
+  .hidden{display:none !important;}
+
+  /* noise overlay */
+  .noise {
+    position:absolute;inset:0;
+    background:url('noise.gif') repeat;
+    opacity:0.08; pointer-events:none; z-index:1;
+    mix-blend-mode:screen;
+  }
+
+  /* boot text (terminal) */
+  #bootText {
+    width:90%;
+    max-width:900px;
+    z-index:2;
+    white-space:pre-wrap;
+    font-size:16px;
+    line-height:1.35;
+    padding:24px;
+    box-sizing:border-box;
+    text-align:left;
+    color:var(--neon);
+    text-shadow:0 0 6px rgba(57,255,20,0.25);
+    border: 1px solid rgba(57,255,20,0.06);
+    backdrop-filter: blur(1px);
+    border-radius:6px;
+  }
+
+  /* Login / password screen */
+  #loginBox {
+    z-index:2;
+    text-align:center;
+    display:flex;
+    gap:12px;
+    flex-direction:column;
+    align-items:center;
+    width:95%;
+    max-width:420px;
+    padding:32px;
+    box-sizing:border-box;
+    border-radius:8px;
+  }
+  h1 {margin:0 0 8px 0;font-size:22px;letter-spacing:1px;}
+  .flicker { animation: flicker 1.5s infinite alternate; }
+  @keyframes flicker {
+    0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
+    20%,24%,55%{opacity:0.3}
+  }
+
+  input[type="password"]{
+    background:transparent;
+    border:1px solid rgba(57,255,20,0.18);
+    color:var(--neon);
+    padding:10px 12px;
+    width:100%;
+    max-width:300px;
+    outline:none;
+    box-shadow:0 0 10px rgba(0,0,0,0.6) inset;
+    font-family:var(--mono);
+    font-size:15px;
+  }
+  button{
+    background:transparent;
+    border:1px solid rgba(57,255,20,0.25);
+    color:var(--neon);
+    padding:8px 16px;
+    cursor:pointer;
+    font-family:var(--mono);
+    letter-spacing:0.5px;
+  }
+  #error { color: #ff4d4d; height:18px; margin-top:8px; }
+
+  /* Batcomputer UI */
+  #batUI {
+    z-index:2;
+    width:100%;
+    height:100%;
+    display:flex;
+    gap:18px;
+    padding:30px;
+    box-sizing:border-box;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:flex-start;
+  }
+  .header {
+    display:flex;gap:12px;align-items:center;
+    width:100%;
+    justify-content:space-between;
+  }
+  .title {
+    font-size:20px;
+    text-shadow:0 0 10px rgba(57,255,20,0.2);
+  }
+  .menu {
+    display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;
+  }
+  .card {
+    border:1px solid rgba(57,255,20,0.08);
+    padding:14px;
+    min-width:180px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .card:hover { background: rgba(57,255,20,0.03); }
+
+  /* small terminal log area */
+  #terminal {
+    width:100%;
+    max-width:1100px;
+    margin-top:18px;
+    padding:14px;
+    border-radius:6px;
+    border:1px solid rgba(57,255,20,0.06);
+    min-height:120px;
+    font-size:14px;
+    white-space:pre-wrap;
+  }
+
+  /* small responsive tweaks */
+  @media (max-width:560px){
+    #bootText {font-size:14px;padding:16px;}
+    .card{min-width:140px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Boot Screen ===== -->
+<div id="boot" class="screen">
+  <div class="noise"></div>
+  <pre id="bootText"></pre>
+</div>
+
+<!-- ===== Login Screen (starts hidden, shown after boot) ===== -->
+<div id="login" class="screen hidden">
+  <div class="noise"></div>
+  <div id="loginBox" role="dialog" aria-labelledby="access-title">
+    <h1 id="access-title" class="flicker">ACCESS RESTRICTED</h1>
+    <p style="margin:0 0 6px 0;">ENTER PASSWORD:</p>
+    <input id="pw" type="password" autocomplete="off" aria-label="Password">
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button id="enterBtn">ENTER</button>
+      <button id="clearBtn">CLEAR</button>
+    </div>
+    <div id="error" aria-live="polite"></div>
+    <small style="opacity:0.4;margin-top:8px">Hint: it's Riddler-ish 😉</small>
+  </div>
+</div>
+
+<!-- ===== Batcomputer UI (hidden until login success) ===== -->
+<div id="batUI" class="screen hidden" style="align-items:flex-start;">
+  <div class="noise"></div>
+  <div style="width:100%;max-width:1200px;">
+    <div class="header">
+      <div class="title">WAYNE ENTERPRISES — SECURE DATABASE</div>
+      <div style="opacity:0.6;font-size:13px">Session: <span id="sessionId">—</span></div>
+    </div>
+
+    <div class="menu" role="menubar" aria-label="Primary menu">
+      <div class="card" tabindex="0" data-action="crime">🦇 Criminal Files</div>
+      <div class="card" tabindex="0" data-action="surv">📹 Surveillance</div>
+      <div class="card" tabindex="0" data-action="vehicle">🚘 Vehicle Diagnostics</div>
+      <div class="card" tabindex="0" data-action="riddler">🧩 Riddler Evidence</div>
+      <div class="card" tabindex="0" data-action="logs">📂 System Logs</div>
+    </div>
+
+    <div id="terminal" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ===== External library for SHA-256 (CryptoJS CDN) ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+<!-- ===== Main JS ===== -->
+<script>
+/* ---------------------
+   CONFIG — change these
+   --------------------- */
+const PASSWORD_PLAIN = null; // set to null to avoid storing plaintext here
+// The site uses a precomputed SHA-256 hash below. Current password is "riddleme"
+// If you'd like to change the password, compute SHA256("yourpass") and replace the hash.
+const PASSWORD_HASH = "f9997fd1c2fd7d940cb6b8eb8d4834076ee749b2d217d23bc038deded194d6c9";
+
+/* Audio filename (place in same folder) */
+const ALFRED_AUDIO = "alfred.mp3";
+
+/* Boot sequence text */
+const BOOT_TEXT = [
+  "> POST CHECK: OK",
+  "> Initializing secure connection...",
+  "> Decrypting files...",
+  "> Establishing Gotham City feed...",
+  "> Loading Wayne Enterprises secure database...",
+  "> System integrity: VERIFIED",
+  "> Access panel online."
+].join("\\n") + "\\n\\n";
+
+/* ---------------------
+   Page behavior
+   --------------------- */
+
+const bootEl = document.getElementById('boot');
+const bootTextEl = document.getElementById('bootText');
+const loginScreen = document.getElementById('login');
+const pwInput = document.getElementById('pw');
+const enterBtn = document.getElementById('enterBtn');
+const clearBtn = document.getElementById('clearBtn');
+const errorEl = document.getElementById('error');
+const batUI = document.getElementById('batUI');
+const terminal = document.getElementById('terminal');
+const sessionIdEl = document.getElementById('sessionId');
+
+let audio; // for Alfred
+
+// Simple typewriter function for the boot text
+function typeText(text, el, speed=30, cb) {
+  el.textContent = "";
+  let i = 0;
+  function step(){
+    if(i < text.length){
+      el.textContent += text.charAt(i);
+      i++;
+      // small jitter to feel more like a terminal
+      setTimeout(step, speed + (Math.random()*25-10));
+    } else {
+      if(cb) cb();
+    }
+  }
+  step();
+}
+
+// Utility: show element
+function show(el){ el.classList.remove('hidden'); }
+// Utility: hide element
+function hide(el){ el.classList.add('hidden'); }
+
+// Boot sequence on load
+window.addEventListener('load', () => {
+  // Start typing the boot text
+  typeText(BOOT_TEXT, bootTextEl, 28, () => {
+    // tiny pause then show login
+    setTimeout(() => {
+      hide(bootEl);
+      show(loginScreen);
+      pwInput.focus();
+    }, 700);
+  });
+});
+
+// Enter key and buttons
+enterBtn.addEventListener('click', attemptLogin);
+clearBtn.addEventListener('click', ()=>{ pwInput.value=""; pwInput.focus(); errorEl.textContent=""; });
+
+// press Enter to submit
+pwInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') {
+    attemptLogin();
+  }
+});
+
+// Attempt login: hash + compare
+function attemptLogin() {
+  errorEl.textContent = "";
+  const val = pwInput.value || "";
+  if(!val.trim()){
+    errorEl.textContent = "Enter password.";
+    return;
+  }
+
+  // compute SHA-256 with CryptoJS
+  const hash = CryptoJS.SHA256(val.trim()).toString();
+
+  if(hash === PASSWORD_HASH){
+    // successful login
+    onAccessGranted();
+  } else {
+    errorEl.textContent = "ACCESS DENIED";
+    pwInput.value = "";
+    pwInput.focus();
+  }
+}
+
+// Called when password matches
+function onAccessGranted(){
+  // hide login
+  hide(loginScreen);
+
+  // Play Alfred audio (must be invoked from user gesture, which this is)
+  try{
+    audio = new Audio(ALFRED_AUDIO);
+    audio.play().catch(()=> {
+      // audio play blocked — show a tiny message in terminal after UI shows
+    });
+  } catch(e){
+    // audio file not present or error — ignore
+  }
+
+  // show a quick boot-like terminal log before revealing UI
+  showTemporaryBootThenUI();
+}
+
+// fake boot after success (shorter) then show bat UI
+function showTemporaryBootThenUI(){
+  // create a short sequence, type into terminal element while UI hidden,
+  // then show bat UI and populate logs.
+  // show a quick fake screen overlay for a second
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.inset = 0;
+  overlay.style.background = '#000';
+  overlay.style.zIndex = 9999;
+  document.body.appendChild(overlay);
+
+  const quickText = "> AUTHENTICATING...\\n> VERIFYING IDENTITY...\\n> ACCESS GRANTED.\\n";
+  const smallEl = document.createElement('pre');
+  smallEl.style.position='fixed';
+  smallEl.style.top = '50%';
+  smallEl.style.left = '50%';
+  smallEl.style.transform = 'translate(-50%,-50%)';
+  smallEl.style.color = 'var(--neon)';
+  smallEl.style.fontFamily = 'var(--mono)';
+  smallEl.style.zIndex = 10000;
+  smallEl.style.whiteSpace='pre-wrap';
+  smallEl.style.textAlign='left';
+  document.body.appendChild(smallEl);
+
+  typeText(quickText, smallEl, 28, () => {
+    // remove overlays, show batUI
+    document.body.removeChild(overlay);
+    document.body.removeChild(smallEl);
+    show(batUI);
+    initBatUI();
+  });
+}
+
+// Initialize the bat UI and logs
+function initBatUI(){
+  sessionIdEl.textContent = generateSessionId();
+  writeTerminal("> Welcome, Master Wayne.");
+  if(!audio){
+    writeTerminal("> (Alfred audio not found or could not be played.)");
+  }
+  writeTerminal("> Tip: use the menu to explore dataset cards.");
+}
+
+// small helper to append lines to the terminal box
+function writeTerminal(line){
+  const now = new Date();
+  const ts = now.toLocaleTimeString();
+  terminal.textContent += `[${ts}] ${line}\\n`;
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+// generate a simple session id (not secure, just for show)
+function generateSessionId(){
+  const a = Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
+  const b = Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0');
+  return `${a}-${b}`.toUpperCase();
+}
+
+/* Menu interactions (cards) — simple demo handlers */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('click', () => {
+    const action = card.getAttribute('data-action');
+    if(action === 'crime'){
+      writeTerminal("> Opening Criminal Files... (mock data)");
+      writeTerminal("  - Joker: Status: At large");
+      writeTerminal("  - Penguin: Status: Under surveillance");
+    } else if(action === 'surv'){
+      writeTerminal("> Connecting to Gotham CCTV feeds...");
+      writeTerminal("  - Feed #03 (Downtown): Activity detected");
+    } else if(action === 'vehicle'){
+      writeTerminal("> Batmobile: Fuel: 78% | Armor: Nominal | Engine: Ready");
+    } else if(action === 'riddler'){
+      writeTerminal("> Opening Riddler Evidence Board...");
+      writeTerminal("  - New clue: 4/9/2025 — encrypted message found");
+    } else if(action === 'logs'){
+      writeTerminal("> System logs: last reboot: 03:12:04 | 12 warnings");
+    } else {
+      writeTerminal("> Unknown menu action");
+    }
+  });
+
+  // keyboard navigation: Enter to "click"
+  card.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' ') card.click();
+  });
+});
+
+/* ===== Optional: compute and show the hashed password in DevTools console for debugging ===== */
+console.info("DEBUG: SHA-256 of your input will be compared to the stored hash.");
+console.info("Stored password hash:", PASSWORD_HASH);
+console.info("If you want to change password, run in console: CryptoJS.SHA256('yourNewPass').toString() and paste result into PASSWORD_HASH in the file.");
+</script>
+</body>
+</html>
