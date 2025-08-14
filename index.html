@@ -5,6 +5,7 @@
 <title>Batcomputer Access</title>
 <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
 <style>
+/* --- GENERAL STYLES --- */
 body {
     background: url('background.jpg') no-repeat center center fixed;
     background-size: cover;
@@ -13,9 +14,9 @@ body {
     font-size: 1.2rem;
     margin: 0;
 }
-
 .hidden { display: none; }
 
+/* --- BOOT SCREENS --- */
 #boot-screen, #after-boot {
     white-space: pre-wrap;
     text-align: left;
@@ -24,6 +25,7 @@ body {
     min-height: 100vh;
 }
 
+/* --- PASSWORD SCREEN --- */
 #password-screen {
     display: flex;
     flex-direction: column;
@@ -33,7 +35,6 @@ body {
     text-align: center;
     background-color: rgba(0,0,0,0.8);
 }
-
 #password-input {
     font-family: 'Source Code Pro', monospace;
     font-size: 1.2rem;
@@ -43,7 +44,6 @@ body {
     border: 1px solid #00ff66;
     margin-top: 15px;
 }
-
 button {
     font-family: 'Source Code Pro', monospace;
     font-size: 1.2rem;
@@ -54,20 +54,15 @@ button {
     cursor: pointer;
     margin-top: 10px;
 }
+#bat-logo { width: 200px; margin-bottom: 20px; }
 
-#bat-logo {
-    width: 200px;
-    margin-bottom: 20px;
-}
-
+/* --- MAIN CONTENT & POPUPS --- */
 #main-content {
     position: relative;
     height: 100vh;
     background-color: rgba(0,0,0,0.6);
     overflow: hidden;
 }
-
-/* Pop-up windows */
 .popup {
     position: absolute;
     background-color: rgba(0,0,0,0.85);
@@ -80,17 +75,15 @@ button {
     width: 200px;
     cursor: move;
 }
-
-img, video {
-    max-width: 100%;
-    border-radius: 5px;
-}
+img, video { max-width: 100%; border-radius: 5px; }
 </style>
 </head>
 <body>
 
+<!-- BOOT SCREEN -->
 <div id="boot-screen"></div>
 
+<!-- PASSWORD SCREEN -->
 <div id="password-screen" class="hidden">
     <img id="bat-logo" src="batlogo.png" alt="Batman Logo">
     <div>ACCESS PASSWORD:</div>
@@ -98,19 +91,22 @@ img, video {
     <button onclick="checkPassword()">ENTER</button>
 </div>
 
+<!-- AFTER BOOT SEQUENCE -->
 <div id="after-boot" class="hidden"></div>
 
+<!-- MAIN BATCOMPUTER CONTENT -->
 <div id="main-content" class="hidden">
     <div class="popup" id="box1" style="top:10%; left:10%"><h3>Logo</h3><img src="batlogo.png"></div>
     <div class="popup" id="box2" style="top:10%; right:10%"><h3>Graph 1</h3><img src="graph1.png"></div>
     <div class="popup" id="box3" style="top:35%; left:5%"><h3>Graph 2</h3><img src="graph2.png"></div>
     <div class="popup" id="box4" style="top:35%; right:5%"><h3>Video Feed</h3><video src="video.mp4" autoplay loop muted></video></div>
-    <div class="popup" id="box5" style="bottom:10%; left:10%"><h3>Creators</h3><p>Bruce Wayne</p><p>Lucius Fox</p></div>
+    <div class="popup" id="box5" style="bottom:10%; left:10%"><h3>Creators</h3><p>Bruce Wayne</p><p>Lucius Fox</p><p>[Your Name]</p></div>
     <div class="popup" id="box6" style="bottom:10%; right:10%"><h3>Alerts</h3><p>City-wide alerts active</p></div>
     <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)"><h3>Mission Brief</h3><p>All systems nominal</p></div>
 </div>
 
 <script>
+// --- BOOT SEQUENCES ---
 const bootLinesBefore = [
     "Initializing WayneTech OS v7.3...",
     "Powering up Batcave systems...",
@@ -118,7 +114,6 @@ const bootLinesBefore = [
     "Activating satellite uplinks...",
     "Awaiting authentication..."
 ];
-
 const bootLinesAfter = [
     "Password accepted.",
     "Decrypting secure files...",
@@ -127,11 +122,13 @@ const bootLinesAfter = [
     "All Batcomputer modules online."
 ];
 
+// DOM elements
 const bootScreen = document.getElementById("boot-screen");
 const passwordScreen = document.getElementById("password-screen");
 const afterBoot = document.getElementById("after-boot");
 const mainContent = document.getElementById("main-content");
 
+// Type boot lines function
 function typeBootLines(lines, element, callback) {
     let index = 0;
     function typeLine() {
@@ -139,13 +136,14 @@ function typeBootLines(lines, element, callback) {
             element.textContent += lines[index] + "\n";
             index++;
             setTimeout(typeLine,700);
-        } else {
-            if(callback) callback();
+        } else if(callback){
+            callback();
         }
     }
     typeLine();
 }
 
+// Start boot before password
 function startBoot(){
     typeBootLines(bootLinesBefore, bootScreen, ()=>{
         setTimeout(()=>{
@@ -155,6 +153,7 @@ function startBoot(){
     });
 }
 
+// Check password and run after-boot
 function checkPassword(){
     const password = document.getElementById("password-input").value;
     if(password === "projectvoc"){
@@ -166,12 +165,10 @@ function checkPassword(){
                 mainContent.classList.remove("hidden");
             },500);
         });
-    } else {
-        alert("Access Denied.");
-    }
+    } else { alert("Access Denied."); }
 }
 
-// Draggable functionality
+// --- DRAGGABLE POPUPS ---
 function makeDraggable(el){
     let pos1=0,pos2=0,pos3=0,pos4=0;
     el.onmousedown = dragMouseDown;
@@ -202,12 +199,12 @@ function makeDraggable(el){
     }
 }
 
-// Apply draggable to all popups
+// Initialize on window load
 window.onload = ()=>{
     startBoot();
-    const boxes = document.querySelectorAll('.popup');
-    boxes.forEach(box=>makeDraggable(box));
+    document.querySelectorAll('.popup').forEach(box=>makeDraggable(box));
 }
 </script>
+
 </body>
 </html>
