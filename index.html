@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Batcomputer Access</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
 <style>
 body {
   background-color: black;
@@ -111,7 +112,6 @@ ul li {
   opacity: 1;
 }
 
-/* Position pop-ups around the center */
 #popup1 { top: 10%; left: 50%; transform: translateX(-50%); }
 #popup2 { top: 50%; left: 90%; transform: translateY(-50%); }
 #popup3 { top: 90%; left: 50%; transform: translateX(-50%); }
@@ -139,7 +139,6 @@ ul li {
   <div class="container">
     <div class="center"></div>
 
-    <!-- Pop-up sections -->
     <div class="popup" id="popup1">📊 Graph 1 Content</div>
     <div class="popup" id="popup2">📊 Graph 2 Content</div>
     <div class="popup" id="popup3">🎥 Video Content</div>
@@ -149,69 +148,8 @@ ul li {
 
 <audio id="alfred-audio" src="alfred-voice.mp3"></audio>
 
-<script>
-const PASSWORD = "projectvoc";
-const bootLines = [
-  "Initializing secure system...",
-  "Loading Wayne Enterprises OS...",
-  "Accessing encrypted Batcomputer nodes...",
-  "Verifying biometric signature...",
-  "Connection established.",
-  "Welcome back, sir."
-];
-
-function checkPassword() {
-  const input = document.getElementById('password-input').value;
-  if (input === PASSWORD) {
-    document.getElementById('password-screen').classList.add('hidden');
-    startBootSequence();
-  } else {
-    document.getElementById('error-message').innerText = "Access Denied";
-  }
-}
-
-function startBootSequence() {
-  document.getElementById('boot-screen').classList.remove('hidden');
-  const audio = document.getElementById('alfred-audio');
-  audio.play();
-  
-  const bootTextElement = document.getElementById('boot-text');
-  let lineIndex = 0;
-
-  function typeLine() {
-    if (lineIndex < bootLines.length) {
-      let charIndex = 0;
-      function typeChar() {
-        if (charIndex < bootLines[lineIndex].length) {
-          bootTextElement.textContent += bootLines[lineIndex][charIndex];
-          charIndex++;
-          setTimeout(typeChar, 50);
-        } else {
-          bootTextElement.textContent += "\n";
-          lineIndex++;
-          setTimeout(typeLine, 300);
-        }
-      }
-      typeChar();
-    } else {
-      setTimeout(showMenu, 1000);
-    }
-  }
-  typeLine();
-}
-
-function showMenu() {
-  document.getElementById('boot-screen').classList.add('hidden');
-  document.getElementById('menu-screen').classList.remove('hidden');
-}
-
-// Toggle pop-ups
-document.querySelectorAll('.popup').forEach(popup => {
-  popup.addEventListener('click', () => {
-    popup.classList.toggle('active');
-  });
-});
-</script>
+<!-- External JavaScript -->
+<script src="script.js"></script>
 
 </body>
 </html>
