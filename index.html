@@ -21,15 +21,18 @@
         }
 
         .screen {
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.5s ease;
             position: absolute;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            transition: all 0.5s ease;
+        }
+
+        .screen.centered {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .hidden {
@@ -43,10 +46,13 @@
             color: #ff0000;
             font-family: 'VT323', monospace;
             padding: 2rem;
-            width: 80%;
-            max-width: 900px;
+            width: 50%;
+            max-width: 600px;
             border: 1px solid #ff0000;
             text-align: left;
+            position: absolute;
+            top: 50px;
+            left: 50px;
         }
 
         #initial-loading-text {
@@ -57,18 +63,23 @@
 
         /* Password Screen */
         #password-screen {
-            background: #000;
+            background: transparent;
             color: #ff0000;
             font-family: 'VT323', monospace;
             text-align: center;
-            padding: 3rem;
-            border: 1px solid #ff0000;
-            width: 600px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
         }
 
         #password-screen h1 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
+            font-size: 3rem;
+            margin: 0;
             text-transform: uppercase;
         }
 
@@ -79,8 +90,7 @@
             padding: 1rem;
             font-size: 1.5rem;
             font-family: 'VT323', monospace;
-            width: 100%;
-            margin-bottom: 1rem;
+            width: 400px;
             text-align: center;
             outline: none;
         }
@@ -106,8 +116,8 @@
 
         #error-message {
             color: #ff0000;
-            margin-top: 1rem;
             font-size: 1.2rem;
+            margin: 0;
         }
 
         /* Boot Screen */
@@ -116,10 +126,13 @@
             color: #ff0000;
             font-family: 'VT323', monospace;
             padding: 2rem;
-            width: 80%;
-            max-width: 900px;
+            width: 50%;
+            max-width: 600px;
             border: 1px solid #ff0000;
             text-align: left;
+            position: absolute;
+            top: 50px;
+            left: 50px;
         }
 
         #boot-text {
@@ -262,21 +275,20 @@
 </head>
 <body>
     <!-- Password Screen -->
-    <div id="password-screen" class="screen hidden">
+    <div id="password-screen" class="screen centered hidden">
         <h1>Enter Access Password:</h1>
         <input type="password" id="password-input" autofocus>
-        <br><br>
         <button class="submit-btn" onclick="checkPassword()">Submit</button>
         <p id="error-message"></p>
     </div>
 
     <!-- Boot Screen -->
     <div id="boot-screen" class="screen hidden">
-        <pre id="boot-text"></pre>
+        <div id="boot-text"></div>
     </div>
 
     <!-- Menu Screen - 7 Boxes -->
-    <div id="menu-screen" class="screen hidden">
+    <div id="menu-screen" class="screen centered hidden">
         <div class="header">
             <h2>Batcomputer Main Menu</h2>
         </div>
@@ -387,7 +399,7 @@
             const loadingScreen = document.createElement('div');
             loadingScreen.id = 'initial-loading';
             loadingScreen.className = 'screen';
-            loadingScreen.innerHTML = '<pre id="initial-loading-text"></pre>';
+            loadingScreen.innerHTML = '<div id="initial-loading-text"></div>';
             
             document.body.insertBefore(loadingScreen, document.body.firstChild);
             
@@ -490,5 +502,6 @@
         });
     </script>
 </body>
+</html>
 </html>
 
