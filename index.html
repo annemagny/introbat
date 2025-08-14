@@ -4,21 +4,29 @@
 <meta charset="UTF-8">
 <title>Batcomputer Access</title>
 <style>
+/* GENERAL STYLES */
 body {
     background-color: black;
     color: #00ff66;
     font-family: 'Courier New', monospace;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     margin: 0;
     padding: 0;
 }
+
 .hidden { display: none; }
+
+/* BOOT SCREENS */
 #boot-screen, #boot-after {
     white-space: pre-wrap;
     text-align: left;
     padding: 20px;
     height: 100vh;
+    font-size: 1.8rem; /* slightly bigger */
+    position: relative;
 }
+
+/* PASSWORD SCREEN */
 #password-screen {
     display: flex;
     flex-direction: column;
@@ -27,18 +35,20 @@ body {
     height: 100vh;
     text-align: center;
 }
+
 #password-input {
     font-family: 'Courier New', monospace;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     padding: 5px;
     background-color: black;
     color: #00ff66;
     border: 1px solid #00ff66;
     margin-top: 15px;
 }
+
 button {
     font-family: 'Courier New', monospace;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     background-color: black;
     color: #00ff66;
     border: 1px solid #00ff66;
@@ -46,9 +56,22 @@ button {
     cursor: pointer;
     margin-top: 10px;
 }
-#menu-screen { padding: 20px; }
-ul { list-style-type: none; padding-left: 0; }
-ul li { margin: 10px 0; }
+
+/* MENU SCREEN */
+#menu-screen {
+    padding: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+ul li {
+    margin: 10px 0;
+}
+
+/* POPUPS */
 .popup {
     position: absolute;
     background-color: #111;
@@ -59,7 +82,19 @@ ul li { margin: 10px 0; }
     box-shadow: 5px 5px 15px #00ff66;
     cursor: move;
 }
-.popup h3 { margin: 0 0 5px 0; font-size: 1.2rem; }
+
+.popup h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    background-color: #000;
+    border-bottom: 1px solid #00ff66;
+    padding: 2px 5px;
+    cursor: move;
+}
+
+.popup p {
+    margin: 5px 0 0 0;
+}
 </style>
 </head>
 <body>
@@ -103,9 +138,10 @@ ul li { margin: 10px 0; }
 <audio id="alfred-audio" src="alfred-voice.mp3"></audio>
 
 <script>
+// PASSWORD AND BOOT
 const PASSWORD = "projectvoc";
 
-// Boot lines
+// Boot sequences
 const bootLinesBefore = [
     "Initializing secure system...",
     "Loading Wayne Enterprises OS...",
@@ -144,7 +180,7 @@ function typeBootLines(lines, element, callback) {
     typeLine();
 }
 
-// Initial boot sequence
+// Initial boot
 window.onload = () => {
     typeBootLines(bootLinesBefore, bootScreen, ()=>{
         bootScreen.classList.add("hidden");
@@ -152,7 +188,7 @@ window.onload = () => {
     });
 }
 
-// Password check
+// Check password
 function checkPassword() {
     const input = document.getElementById("password-input").value;
     if(input === PASSWORD){
@@ -168,7 +204,7 @@ function checkPassword() {
     } else { alert("Access Denied"); }
 }
 
-// Make popups draggable
+// DRAGGABLE POPUPS
 function makeDraggable(el){
     let pos1=0,pos2=0,pos3=0,pos4=0;
     el.onmousedown = dragMouseDown;
@@ -195,7 +231,6 @@ function makeAllDraggable(){
     document.querySelectorAll('.popup').forEach(el => makeDraggable(el));
 }
 </script>
-</body>
-</html>
 
+</body>
 </html>
