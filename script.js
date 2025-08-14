@@ -1,7 +1,5 @@
-// PASSWORD AND BOOT
 const PASSWORD = "projectvoc";
 
-// Boot sequences
 const bootLinesBefore = [
     "Initializing secure system...",
     "Loading Wayne Enterprises OS...",
@@ -19,7 +17,6 @@ const bootLinesAfter = [
     "All Batcomputer modules online."
 ];
 
-// Elements
 const bootScreen = document.getElementById("boot-screen");
 const passwordScreen = document.getElementById("password-screen");
 const bootAfter = document.getElementById("boot-after");
@@ -27,7 +24,6 @@ const menuScreen = document.getElementById("menu-screen");
 const popupContainer = document.getElementById("popup-container");
 const alfredAudio = document.getElementById("alfred-audio");
 
-// Type boot lines function
 function typeBootLines(lines, element, callback) {
     let index = 0;
     function typeLine() {
@@ -40,15 +36,13 @@ function typeBootLines(lines, element, callback) {
     typeLine();
 }
 
-// Initial boot
 window.onload = () => {
     typeBootLines(bootLinesBefore, bootScreen, ()=>{
         bootScreen.classList.add("hidden");
         passwordScreen.classList.remove("hidden");
     });
-}
+};
 
-// Check password
 function checkPassword() {
     const input = document.getElementById("password-input").value;
     if(input === PASSWORD){
@@ -64,10 +58,12 @@ function checkPassword() {
     } else { alert("Access Denied"); }
 }
 
-// DRAGGABLE POPUPS
+// Draggable popups
 function makeDraggable(el){
+    const titleBar = el.querySelector(".title-bar");
     let pos1=0,pos2=0,pos3=0,pos4=0;
-    el.onmousedown = dragMouseDown;
+    titleBar.onmousedown = dragMouseDown;
+
     function dragMouseDown(e){
         e.preventDefault();
         pos3 = e.clientX; pos4 = e.clientY;
@@ -89,5 +85,9 @@ function makeDraggable(el){
 }
 
 function makeAllDraggable(){
-    document.querySelectorAll('.popup').forEach(el => makeDraggable(el));
+    document.querySelectorAll('.popup').forEach(el => {
+        makeDraggable(el);
+        const closeBtn = el.querySelector(".close-btn");
+        if(closeBtn) closeBtn.onclick = () => el.style.display = "none";
+    });
 }
