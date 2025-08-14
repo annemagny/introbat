@@ -3,99 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Batcomputer Access</title>
-<style>
-/* GENERAL STYLES */
-body {
-    background-color: black;
-    color: #00ff66;
-    font-family: 'Courier New', monospace;
-    font-size: 1.5rem;
-    margin: 0;
-    padding: 0;
-}
-
-.hidden { display: none; }
-
-/* BOOT SCREENS */
-#boot-screen, #boot-after {
-    white-space: pre-wrap;
-    text-align: left;
-    padding: 20px;
-    height: 100vh;
-    font-size: 1.8rem; /* slightly bigger */
-    position: relative;
-}
-
-/* PASSWORD SCREEN */
-#password-screen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-}
-
-#password-input {
-    font-family: 'Courier New', monospace;
-    font-size: 1.5rem;
-    padding: 5px;
-    background-color: black;
-    color: #00ff66;
-    border: 1px solid #00ff66;
-    margin-top: 15px;
-}
-
-button {
-    font-family: 'Courier New', monospace;
-    font-size: 1.5rem;
-    background-color: black;
-    color: #00ff66;
-    border: 1px solid #00ff66;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-/* MENU SCREEN */
-#menu-screen {
-    padding: 20px;
-}
-
-ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-ul li {
-    margin: 10px 0;
-}
-
-/* POPUPS */
-.popup {
-    position: absolute;
-    background-color: #111;
-    border: 2px solid #00ff66;
-    border-radius: 4px;
-    padding: 10px;
-    width: 250px;
-    box-shadow: 5px 5px 15px #00ff66;
-    cursor: move;
-}
-
-.popup h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    background-color: #000;
-    border-bottom: 1px solid #00ff66;
-    padding: 2px 5px;
-    cursor: move;
-}
-
-.popup p {
-    margin: 5px 0 0 0;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -125,112 +33,61 @@ ul li {
 
 <!-- Popups -->
 <div id="popup-container" class="hidden">
-    <div class="popup" id="box1" style="top:10%; left:10%"><h3>Window 1</h3><p>Content here</p></div>
-    <div class="popup" id="box2" style="top:10%; right:10%"><h3>Window 2</h3><p>Content here</p></div>
-    <div class="popup" id="box3" style="top:35%; left:5%"><h3>Window 3</h3><p>Content here</p></div>
-    <div class="popup" id="box4" style="top:35%; right:5%"><h3>Window 4</h3><p>Content here</p></div>
-    <div class="popup" id="box5" style="bottom:10%; left:10%"><h3>Window 5</h3><p>Content here</p></div>
-    <div class="popup" id="box6" style="bottom:10%; right:10%"><h3>Window 6</h3><p>Content here</p></div>
-    <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)"><h3>Window 7</h3><p>Content here</p></div>
+    <div class="popup" id="box1" style="top:10%; left:10%">
+        <div class="title-bar">
+            <h3>Window 1</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
+    <div class="popup" id="box2" style="top:10%; right:10%">
+        <div class="title-bar">
+            <h3>Window 2</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
+    <div class="popup" id="box3" style="top:35%; left:5%">
+        <div class="title-bar">
+            <h3>Window 3</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
+    <div class="popup" id="box4" style="top:35%; right:5%">
+        <div class="title-bar">
+            <h3>Window 4</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
+    <div class="popup" id="box5" style="bottom:10%; left:10%">
+        <div class="title-bar">
+            <h3>Window 5</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
+    <div class="popup" id="box6" style="bottom:10%; right:10%">
+        <div class="title-bar">
+            <h3>Window 6</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
+    <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)">
+        <div class="title-bar">
+            <h3>Window 7</h3>
+            <span class="close-btn">X</span>
+        </div>
+        <div class="content"><p>Content here</p></div>
+    </div>
 </div>
 
 <!-- Alfred audio -->
 <audio id="alfred-audio" src="alfred-voice.mp3"></audio>
 
-<script>
-// PASSWORD AND BOOT
-const PASSWORD = "projectvoc";
-
-// Boot sequences
-const bootLinesBefore = [
-    "Initializing secure system...",
-    "Loading Wayne Enterprises OS...",
-    "Accessing encrypted Batcomputer nodes...",
-    "Verifying biometric signature...",
-    "Connection established.",
-    "Welcome back, sir."
-];
-
-const bootLinesAfter = [
-    "Password accepted.",
-    "Decrypting secure files...",
-    "Loading mission data...",
-    "Engaging remote vehicle systems...",
-    "All Batcomputer modules online."
-];
-
-// Elements
-const bootScreen = document.getElementById("boot-screen");
-const passwordScreen = document.getElementById("password-screen");
-const bootAfter = document.getElementById("boot-after");
-const menuScreen = document.getElementById("menu-screen");
-const popupContainer = document.getElementById("popup-container");
-const alfredAudio = document.getElementById("alfred-audio");
-
-// Type boot lines function
-function typeBootLines(lines, element, callback) {
-    let index = 0;
-    function typeLine() {
-        if(index < lines.length){
-            element.textContent += lines[index] + "\n";
-            index++;
-            setTimeout(typeLine, 500);
-        } else if(callback) callback();
-    }
-    typeLine();
-}
-
-// Initial boot
-window.onload = () => {
-    typeBootLines(bootLinesBefore, bootScreen, ()=>{
-        bootScreen.classList.add("hidden");
-        passwordScreen.classList.remove("hidden");
-    });
-}
-
-// Check password
-function checkPassword() {
-    const input = document.getElementById("password-input").value;
-    if(input === PASSWORD){
-        passwordScreen.classList.add("hidden");
-        bootAfter.classList.remove("hidden");
-        alfredAudio.play();
-        typeBootLines(bootLinesAfter, bootAfter, ()=>{
-            bootAfter.classList.add("hidden");
-            menuScreen.classList.remove("hidden");
-            popupContainer.classList.remove("hidden");
-            makeAllDraggable();
-        });
-    } else { alert("Access Denied"); }
-}
-
-// DRAGGABLE POPUPS
-function makeDraggable(el){
-    let pos1=0,pos2=0,pos3=0,pos4=0;
-    el.onmousedown = dragMouseDown;
-    function dragMouseDown(e){
-        e.preventDefault();
-        pos3 = e.clientX; pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-    }
-    function elementDrag(e){
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
-        el.style.top = (el.offsetTop - pos2) + "px";
-        el.style.left = (el.offsetLeft - pos1) + "px";
-    }
-    function closeDragElement(){
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
-}
-function makeAllDraggable(){
-    document.querySelectorAll('.popup').forEach(el => makeDraggable(el));
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
+
