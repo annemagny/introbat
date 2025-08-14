@@ -1,93 +1,494 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Batcomputer Access</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batcomputer Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background: #000;
+            height: 100vh;
+            overflow: hidden;
+            color: #ff0000;
+        }
+
+        .screen {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Initial Loading Screen */
+        #initial-loading {
+            background: #000;
+            color: #ff0000;
+            font-family: 'VT323', monospace;
+            padding: 2rem;
+            width: 80%;
+            max-width: 900px;
+            border: 1px solid #ff0000;
+            text-align: left;
+        }
+
+        #initial-loading-text {
+            font-size: 18px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        /* Password Screen */
+        #password-screen {
+            background: #000;
+            color: #ff0000;
+            font-family: 'VT323', monospace;
+            text-align: center;
+            padding: 3rem;
+            border: 1px solid #ff0000;
+            width: 600px;
+        }
+
+        #password-screen h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        #password-input {
+            background: #000;
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            padding: 1rem;
+            font-size: 1.5rem;
+            font-family: 'VT323', monospace;
+            width: 100%;
+            margin-bottom: 1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        #password-input:focus {
+            background: #111;
+        }
+
+        .submit-btn {
+            background: #ff0000;
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: 'VT323', monospace;
+        }
+
+        .submit-btn:hover {
+            background: #cc0000;
+        }
+
+        #error-message {
+            color: #ff0000;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Boot Screen */
+        #boot-screen {
+            background: #000;
+            color: #ff0000;
+            font-family: 'VT323', monospace;
+            padding: 2rem;
+            width: 80%;
+            max-width: 900px;
+            border: 1px solid #ff0000;
+            text-align: left;
+        }
+
+        #boot-text {
+            font-size: 18px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        /* Menu Screen - 7 Boxes Layout */
+        #menu-screen {
+            background: #000;
+            color: #ff0000;
+            font-family: 'VT323', monospace;
+            padding: 2rem;
+            width: 95%;
+            max-width: 1400px;
+            height: 90vh;
+            border: 1px solid #ff0000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .boxes-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .box {
+            border: 1px solid #ff0000;
+            background: #000;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .box:hover {
+            background: #111;
+            border-color: #cc0000;
+        }
+
+        .box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .box p {
+            font-size: 1rem;
+            text-align: center;
+            color: #cc0000;
+            line-height: 1.3;
+        }
+
+        /* Large box spans 2 columns */
+        .box.large {
+            grid-column: span 2;
+        }
+
+        /* Video box styling */
+        .box.video {
+            grid-column: span 2;
+            grid-row: span 1;
+        }
+
+        .box.video video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid #ff0000;
+        }
+
+        /* Text box styling */
+        .box.text {
+            grid-column: span 2;
+            text-align: left;
+            justify-content: flex-start;
+            padding: 2rem;
+        }
+
+        .box.text p {
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        /* Photo boxes */
+        .box.photo img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border: 1px solid #ff0000;
+            margin-bottom: 1rem;
+        }
+
+        /* Specific grid positioning */
+        .box:nth-child(1) { /* Video */ grid-column: 1 / 3; grid-row: 1; }
+        .box:nth-child(2) { /* Text */ grid-column: 3; grid-row: 1 / 3; }
+        .box:nth-child(3) { /* Photo 1 */ grid-column: 1; grid-row: 2; }
+        .box:nth-child(4) { /* Photo 2 */ grid-column: 2; grid-row: 2; }
+        .box:nth-child(5) { /* Photo 3 */ grid-column: 1; grid-row: 3; }
+        .box:nth-child(6) { /* Photo 4 */ grid-column: 2; grid-row: 3; }
+        .box:nth-child(7) { /* Photo 5 */ grid-column: 3; grid-row: 3; }
+
+        /* Responsive for smaller screens */
+        @media (max-width: 1200px) {
+            .boxes-container {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+            }
+            
+            .box:nth-child(1) { grid-column: 1 / 3; grid-row: 1; }
+            .box:nth-child(2) { grid-column: 1 / 3; grid-row: 2; }
+            .box:nth-child(3) { grid-column: 1; grid-row: 3; }
+            .box:nth-child(4) { grid-column: 2; grid-row: 3; }
+            .box:nth-child(5) { grid-column: 1; grid-row: 4; }
+            .box:nth-child(6) { grid-column: 2; grid-row: 4; }
+            .box:nth-child(7) { grid-column: 1 / 3; grid-row: 5; }
+        }
+    </style>
 </head>
 <body>
-
-<!-- First Boot Screen -->
-<div id="boot-screen"></div>
-
-<!-- Password Screen -->
-<div id="password-screen" class="hidden">
-    <div>ACCESS PASSWORD:</div>
-    <input type="password" id="password-input">
-    <button onclick="checkPassword()">ENTER</button>
-</div>
-
-<!-- Second Boot Screen -->
-<div id="boot-after" class="hidden"></div>
-
-<!-- Menu Screen -->
-<div id="menu-screen" class="hidden">
-    <h2>Batcomputer Main Menu</h2>
-    <ul>
-        <li>📁 Case Files</li>
-        <li>📁 Criminal Database</li>
-        <li>📁 Surveillance Logs</li>
-        <li>📁 Gotham City Map</li>
-    </ul>
-</div>
-
-<!-- Popups -->
-<div id="popup-container" class="hidden">
-    <div class="popup" id="box1" style="top:10%; left:10%">
-        <div class="title-bar">
-            <h3>Window 1</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
+    <!-- Password Screen -->
+    <div id="password-screen" class="screen hidden">
+        <h1>Enter Access Password:</h1>
+        <input type="password" id="password-input" autofocus>
+        <br><br>
+        <button class="submit-btn" onclick="checkPassword()">Submit</button>
+        <p id="error-message"></p>
     </div>
-    <div class="popup" id="box2" style="top:10%; right:10%">
-        <div class="title-bar">
-            <h3>Window 2</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
-    </div>
-    <div class="popup" id="box3" style="top:35%; left:5%">
-        <div class="title-bar">
-            <h3>Window 3</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
-    </div>
-    <div class="popup" id="box4" style="top:35%; right:5%">
-        <div class="title-bar">
-            <h3>Window 4</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
-    </div>
-    <div class="popup" id="box5" style="bottom:10%; left:10%">
-        <div class="title-bar">
-            <h3>Window 5</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
-    </div>
-    <div class="popup" id="box6" style="bottom:10%; right:10%">
-        <div class="title-bar">
-            <h3>Window 6</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
-    </div>
-    <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)">
-        <div class="title-bar">
-            <h3>Window 7</h3>
-            <span class="close-btn">X</span>
-        </div>
-        <div class="content"><p>Content here</p></div>
-    </div>
-</div>
 
-<!-- Alfred audio -->
-<audio id="alfred-audio" src="alfred-voice.mp3"></audio>
+    <!-- Boot Screen -->
+    <div id="boot-screen" class="screen hidden">
+        <pre id="boot-text"></pre>
+    </div>
 
-<script src="script.js"></script>
+    <!-- Menu Screen - 7 Boxes -->
+    <div id="menu-screen" class="screen hidden">
+        <div class="header">
+            <h2>Batcomputer Main Menu</h2>
+        </div>
+        
+        <div class="boxes-container">
+            <!-- Video Box -->
+            <div class="box video">
+                <h3>Surveillance Feed</h3>
+                <video controls>
+                    <source src="surveillance.mp4" type="video/mp4">
+                    <p>Video feed unavailable</p>
+                </video>
+                <p>Live Gotham City monitoring system</p>
+            </div>
+            
+            <!-- Text Box -->
+            <div class="box text">
+                <h3>Case Files Database</h3>
+                <p>Access to comprehensive criminal records and ongoing investigations. Real-time updates from GCPD and field operatives.</p>
+                <br>
+                <p>Current active cases: 47</p>
+                <p>Solved this month: 23</p>
+                <p>Pending analysis: 12</p>
+                <br>
+                <p>System status: OPERATIONAL</p>
+                <p>Last update: 23:47:12</p>
+            </div>
+            
+            <!-- Photo Box 1 -->
+            <div class="box photo">
+                <h3>Crime Scene Alpha</h3>
+                <img src="https://via.placeholder.com/300x150/000000/ff0000?text=EVIDENCE+A" alt="Crime Scene A">
+                <p>Downtown incident - Evidence collected</p>
+            </div>
+            
+            <!-- Photo Box 2 -->
+            <div class="box photo">
+                <h3>Suspect Profile</h3>
+                <img src="https://via.placeholder.com/300x150/000000/ff0000?text=SUSPECT+B" alt="Suspect B">
+                <p>Known associate - High priority target</p>
+            </div>
+            
+            <!-- Photo Box 3 -->
+            <div class="box photo">
+                <h3>Forensic Analysis</h3>
+                <img src="https://via.placeholder.com/300x150/000000/ff0000?text=FORENSICS" alt="Forensic Evidence">
+                <p>DNA match confirmed - Case priority: HIGH</p>
+            </div>
+            
+            <!-- Photo Box 4 -->
+            <div class="box photo">
+                <h3>Vehicle Tracking</h3>
+                <img src="https://via.placeholder.com/300x150/000000/ff0000?text=VEHICLE+ID" alt="Vehicle Tracking">
+                <p>Batmobile location tracker - All systems go</p>
+            </div>
+            
+            <!-- Photo Box 5 -->
+            <div class="box photo">
+                <h3>Gotham Map</h3>
+                <img src="https://via.placeholder.com/300x150/000000/ff0000?text=GOTHAM+MAP" alt="Gotham City Map">
+                <p>Tactical overview - Hot zones marked in red</p>
+            </div>
+        </div>
+    </div>
+
+    <audio id="alfred-audio" src="alfred.mp3"></audio>
+
+    <script>
+        const PASSWORD = "projectvoc";
+        
+        // Initial loading lines - Old school style
+        const initialLoadingLines = [
+            "C:\\BATCOMPUTER> INITIALIZE SYSTEM",
+            "Loading kernel modules...                     [OK]",
+            "Starting security daemon...                   [OK]",
+            "Mounting encrypted filesystems...             [OK]",
+            "Checking hardware integrity...                [OK]",
+            "Loading biometric scanners...                 [OK]",
+            "Initializing network protocols...             [OK]",
+            "Starting authentication service...            [OK]",
+            "",
+            "System initialization complete.",
+            "Ready for user authentication."
+        ];
+        
+        // Post-authentication loading lines - Old school style
+        const bootLines = [
+            "C:\\BATCOMPUTER> LOGIN SUCCESSFUL",
+            "Loading user profile: BATMAN                  [OK]",
+            "Connecting to Gotham network...               [OK]",
+            "Mounting case database...                     [OK]",
+            "Loading criminal records...                   [OK]",
+            "Initializing surveillance grid...             [OK]",
+            "Starting forensic analysis tools...           [OK]",
+            "Loading tactical interface...                 [OK]",
+            "",
+            "All systems operational.",
+            "Welcome to the Batcomputer mainframe."
+        ];
+
+        // Start with initial loading on page load
+        window.addEventListener('load', function() {
+            startInitialLoading();
+        });
+
+        function startInitialLoading() {
+            // Show initial loading screen
+            const loadingScreen = document.createElement('div');
+            loadingScreen.id = 'initial-loading';
+            loadingScreen.className = 'screen';
+            loadingScreen.innerHTML = '<pre id="initial-loading-text"></pre>';
+            
+            document.body.insertBefore(loadingScreen, document.body.firstChild);
+            
+            const loadingTextElement = document.getElementById('initial-loading-text');
+            loadingTextElement.textContent = "";
+            
+            let lineIndex = 0;
+            
+            function typeLine() {
+                if (lineIndex < initialLoadingLines.length) {
+                    let charIndex = 0;
+                    const currentLine = initialLoadingLines[lineIndex];
+                    
+                    function typeChar() {
+                        if (charIndex < currentLine.length) {
+                            loadingTextElement.textContent += currentLine[charIndex];
+                            charIndex++;
+                            setTimeout(typeChar, 20); // Faster typing
+                        } else {
+                            loadingTextElement.textContent += "\n";
+                            lineIndex++;
+                            setTimeout(typeLine, 100); // Faster line delay
+                        }
+                    }
+                    typeChar();
+                } else {
+                    setTimeout(showPasswordScreen, 500); // Faster transition
+                }
+            }
+            
+            typeLine();
+        }
+
+        function showPasswordScreen() {
+            document.getElementById('initial-loading').classList.add('hidden');
+            document.getElementById('password-screen').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('password-input').focus();
+            }, 100);
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('password-input').value;
+            if (input === PASSWORD) {
+                document.getElementById('password-screen').classList.add('hidden');
+                startBootSequence();
+            } else {
+                document.getElementById('error-message').innerText = "Access Denied";
+            }
+        }
+
+        function startBootSequence() {
+            document.getElementById('boot-screen').classList.remove('hidden');
+            
+            const bootTextElement = document.getElementById('boot-text');
+            bootTextElement.textContent = "";
+            
+            let lineIndex = 0;
+            
+            function typeLine() {
+                if (lineIndex < bootLines.length) {
+                    let charIndex = 0;
+                    const currentLine = bootLines[lineIndex];
+                    
+                    function typeChar() {
+                        if (charIndex < currentLine.length) {
+                            bootTextElement.textContent += currentLine[charIndex];
+                            charIndex++;
+                            setTimeout(typeChar, 20); // Faster typing
+                        } else {
+                            bootTextElement.textContent += "\n";
+                            lineIndex++;
+                            setTimeout(typeLine, 100); // Faster line delay
+                        }
+                    }
+                    typeChar();
+                } else {
+                    setTimeout(showMenu, 500); // Faster transition
+                }
+            }
+            
+            typeLine();
+        }
+
+        function showMenu() {
+            // Play Alfred audio when officially logged in
+            const audio = document.getElementById('alfred-audio');
+            audio.play().catch(e => console.log('Audio play failed:', e));
+            
+            document.getElementById('boot-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+        }
+
+        // Allow Enter key to submit password
+        document.getElementById('password-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
 </body>
 </html>
 
