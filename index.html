@@ -3,40 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <title>Batcomputer Access</title>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
 <style>
-/* --- GENERAL STYLES --- */
 body {
-    background: url('background.png') no-repeat center center fixed;
-    background-size: cover;
+    background-color: black;
     color: #00ff66;
-    font-family: 'Source Code Pro', monospace;
+    font-family: 'Courier New', monospace;
     font-size: 1.2rem;
     margin: 0;
+    padding: 0;
 }
 .hidden { display: none; }
-
-/* --- BOOT SCREENS --- */
-#boot-screen, #after-boot {
+#boot-screen, #boot-after {
     white-space: pre-wrap;
     text-align: left;
     padding: 20px;
-    background-color: rgba(0,0,0,0.7);
-    min-height: 100vh;
+    height: 100vh;
 }
-
-/* --- PASSWORD SCREEN --- */
 #password-screen {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     height: 100vh;
     text-align: center;
-    background-color: rgba(0,0,0,0.8);
 }
 #password-input {
-    font-family: 'Source Code Pro', monospace;
+    font-family: 'Courier New', monospace;
     font-size: 1.2rem;
     padding: 5px;
     background-color: black;
@@ -45,7 +37,7 @@ body {
     margin-top: 15px;
 }
 button {
-    font-family: 'Source Code Pro', monospace;
+    font-family: 'Courier New', monospace;
     font-size: 1.2rem;
     background-color: black;
     color: #00ff66;
@@ -54,66 +46,75 @@ button {
     cursor: pointer;
     margin-top: 10px;
 }
-#bat-logo { width: 200px; margin-bottom: 20px; }
-
-/* --- MAIN CONTENT & POPUPS --- */
-#main-content {
-    position: relative;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.6);
-    overflow: hidden;
-}
+#menu-screen { padding: 20px; }
+ul { list-style-type: none; padding-left: 0; }
+ul li { margin: 10px 0; }
 .popup {
     position: absolute;
-    background-color: rgba(0,0,0,0.85);
+    background-color: #111;
     border: 2px solid #00ff66;
-    border-radius: 10px;
+    border-radius: 4px;
     padding: 10px;
-    color: #00ff66;
-    text-align: center;
-    box-shadow: 0 0 15px #00ff66;
-    width: 200px;
+    width: 250px;
+    box-shadow: 5px 5px 15px #00ff66;
     cursor: move;
 }
-img, video { max-width: 100%; border-radius: 5px; }
+.popup h3 { margin: 0 0 5px 0; font-size: 1.2rem; }
 </style>
 </head>
 <body>
 
-<!-- BOOT SCREEN -->
+<!-- First Boot Screen -->
 <div id="boot-screen"></div>
 
-<!-- PASSWORD SCREEN -->
+<!-- Password Screen -->
 <div id="password-screen" class="hidden">
-    <img id="bat-logo" src="batlogo.png" alt="Batman Logo">
     <div>ACCESS PASSWORD:</div>
     <input type="password" id="password-input">
     <button onclick="checkPassword()">ENTER</button>
 </div>
 
-<!-- AFTER BOOT SEQUENCE -->
-<div id="after-boot" class="hidden"></div>
+<!-- Second Boot Screen -->
+<div id="boot-after" class="hidden"></div>
 
-<!-- MAIN BATCOMPUTER CONTENT -->
-<div id="main-content" class="hidden">
-    <div class="popup" id="box1" style="top:10%; left:10%"><h3>Logo</h3><img src="batlogo.png"></div>
-    <div class="popup" id="box2" style="top:10%; right:10%"><h3>Graph 1</h3><img src="graph1.png"></div>
-    <div class="popup" id="box3" style="top:35%; left:5%"><h3>Graph 2</h3><img src="graph2.png"></div>
-    <div class="popup" id="box4" style="top:35%; right:5%"><h3>Video Feed</h3><video src="video.mp4" autoplay loop muted></video></div>
-    <div class="popup" id="box5" style="bottom:10%; left:10%"><h3>Creators</h3><p>Bruce Wayne</p><p>Lucius Fox</p><p>[Your Name]</p></div>
-    <div class="popup" id="box6" style="bottom:10%; right:10%"><h3>Alerts</h3><p>City-wide alerts active</p></div>
-    <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)"><h3>Mission Brief</h3><p>All systems nominal</p></div>
+<!-- Menu Screen -->
+<div id="menu-screen" class="hidden">
+    <h2>Batcomputer Main Menu</h2>
+    <ul>
+        <li>📁 Case Files</li>
+        <li>📁 Criminal Database</li>
+        <li>📁 Surveillance Logs</li>
+        <li>📁 Gotham City Map</li>
+    </ul>
 </div>
 
+<!-- Popups -->
+<div id="popup-container" class="hidden">
+    <div class="popup" id="box1" style="top:10%; left:10%"><h3>Window 1</h3><p>Content here</p></div>
+    <div class="popup" id="box2" style="top:10%; right:10%"><h3>Window 2</h3><p>Content here</p></div>
+    <div class="popup" id="box3" style="top:35%; left:5%"><h3>Window 3</h3><p>Content here</p></div>
+    <div class="popup" id="box4" style="top:35%; right:5%"><h3>Window 4</h3><p>Content here</p></div>
+    <div class="popup" id="box5" style="bottom:10%; left:10%"><h3>Window 5</h3><p>Content here</p></div>
+    <div class="popup" id="box6" style="bottom:10%; right:10%"><h3>Window 6</h3><p>Content here</p></div>
+    <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)"><h3>Window 7</h3><p>Content here</p></div>
+</div>
+
+<!-- Alfred audio -->
+<audio id="alfred-audio" src="alfred-voice.mp3"></audio>
+
 <script>
-// --- BOOT SEQUENCES ---
+const PASSWORD = "projectvoc";
+
+// Boot lines
 const bootLinesBefore = [
-    "Initializing WayneTech OS v7.3...",
-    "Powering up Batcave systems...",
-    "Loading encrypted databases...",
-    "Activating satellite uplinks...",
-    "Awaiting authentication..."
+    "Initializing secure system...",
+    "Loading Wayne Enterprises OS...",
+    "Accessing encrypted Batcomputer nodes...",
+    "Verifying biometric signature...",
+    "Connection established.",
+    "Welcome back, sir."
 ];
+
 const bootLinesAfter = [
     "Password accepted.",
     "Decrypting secure files...",
@@ -122,11 +123,13 @@ const bootLinesAfter = [
     "All Batcomputer modules online."
 ];
 
-// DOM elements
+// Elements
 const bootScreen = document.getElementById("boot-screen");
 const passwordScreen = document.getElementById("password-screen");
-const afterBoot = document.getElementById("after-boot");
-const mainContent = document.getElementById("main-content");
+const bootAfter = document.getElementById("boot-after");
+const menuScreen = document.getElementById("menu-screen");
+const popupContainer = document.getElementById("popup-container");
+const alfredAudio = document.getElementById("alfred-audio");
 
 // Type boot lines function
 function typeBootLines(lines, element, callback) {
@@ -135,76 +138,64 @@ function typeBootLines(lines, element, callback) {
         if(index < lines.length){
             element.textContent += lines[index] + "\n";
             index++;
-            setTimeout(typeLine,700);
-        } else if(callback){
-            callback();
-        }
+            setTimeout(typeLine, 500);
+        } else if(callback) callback();
     }
     typeLine();
 }
 
-// Start boot before password
-function startBoot(){
+// Initial boot sequence
+window.onload = () => {
     typeBootLines(bootLinesBefore, bootScreen, ()=>{
-        setTimeout(()=>{
-            bootScreen.classList.add("hidden");
-            passwordScreen.classList.remove("hidden");
-        },500);
+        bootScreen.classList.add("hidden");
+        passwordScreen.classList.remove("hidden");
     });
 }
 
-// Check password and run after-boot
-function checkPassword(){
-    const password = document.getElementById("password-input").value;
-    if(password === "projectvoc"){
+// Password check
+function checkPassword() {
+    const input = document.getElementById("password-input").value;
+    if(input === PASSWORD){
         passwordScreen.classList.add("hidden");
-        afterBoot.classList.remove("hidden");
-        typeBootLines(bootLinesAfter, afterBoot, ()=>{
-            setTimeout(()=>{
-                afterBoot.classList.add("hidden");
-                mainContent.classList.remove("hidden");
-            },500);
+        bootAfter.classList.remove("hidden");
+        alfredAudio.play();
+        typeBootLines(bootLinesAfter, bootAfter, ()=>{
+            bootAfter.classList.add("hidden");
+            menuScreen.classList.remove("hidden");
+            popupContainer.classList.remove("hidden");
+            makeAllDraggable();
         });
-    } else { alert("Access Denied."); }
+    } else { alert("Access Denied"); }
 }
 
-// --- DRAGGABLE POPUPS ---
+// Make popups draggable
 function makeDraggable(el){
     let pos1=0,pos2=0,pos3=0,pos4=0;
     el.onmousedown = dragMouseDown;
-
     function dragMouseDown(e){
-        e = e || window.event;
         e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
         document.onmouseup = closeDragElement;
         document.onmousemove = elementDrag;
     }
-
     function elementDrag(e){
-        e = e || window.event;
         e.preventDefault();
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
         el.style.top = (el.offsetTop - pos2) + "px";
         el.style.left = (el.offsetLeft - pos1) + "px";
     }
-
     function closeDragElement(){
         document.onmouseup = null;
         document.onmousemove = null;
     }
 }
-
-// Initialize on window load
-window.onload = ()=>{
-    startBoot();
-    document.querySelectorAll('.popup').forEach(box=>makeDraggable(box));
+function makeAllDraggable(){
+    document.querySelectorAll('.popup').forEach(el => makeDraggable(el));
 }
 </script>
-
 </body>
+</html>
+
 </html>
