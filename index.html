@@ -2,141 +2,216 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Batcomputer Access</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
-    body {
-        background-color: black;
-        color: #00ff66;
-        font-family: 'VT323', monospace;
-        margin: 0;
-        padding: 0;
-    }
+body {
+  background-color: black;
+  color: #00ff66;
+  font-family: 'VT323', monospace;
+  font-size: 2rem;
+  padding: 20px;
+  margin: 0;
+}
 
-    /* Loading screen styles */
-    #loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column; 
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding: 20px;
-    }
+.hidden {
+  display: none;
+}
 
-    #loading-text {
-        font-size: 2rem;
-        text-align: left;
-        white-space: pre-line;
-        line-height: 1.4;
-    }
+#boot-screen {
+  white-space: pre-wrap;
+  text-align: left;
+}
 
-    /* Password input styles */
-    #password-screen {
-        display: none;
-        padding: 20px;
-    }
-    #password {
-        background: black;
-        border: 1px solid #00ff66;
-        color: #00ff66;
-        font-family: 'VT323', monospace;
-        font-size: 1.5rem;
-        padding: 5px;
-    }
-    button {
-        background: black;
-        border: 1px solid #00ff66;
-        color: #00ff66;
-        font-family: 'VT323', monospace;
-        font-size: 1.5rem;
-        padding: 5px;
-        cursor: pointer;
-    }
+#password-screen {
+  text-align: left;
+}
 
-    /* Menu screen styles */
-    #menu-screen {
-        display: none;
-        padding: 20px;
-    }
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-    li {
-        margin: 5px 0;
-    }
+#password-input {
+  font-family: 'VT323', monospace;
+  font-size: 1.5rem;
+  padding: 5px;
+  background-color: black;
+  color: #00ff66;
+  border: 1px solid #00ff66;
+}
+
+button {
+  font-family: 'VT323', monospace;
+  font-size: 1.5rem;
+  background-color: black;
+  color: #00ff66;
+  border: 1px solid #00ff66;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul li {
+  margin: 10px 0;
+}
+
+/* ========================
+   Batcomputer Menu Layout
+   ======================== */
+
+#menu-screen {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: url('bat-symbol.png') no-repeat center center;
+  background-size: contain;
+  z-index: 10;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.center:hover {
+  transform: scale(1.1);
+}
+
+.popup {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #00ff66;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 255, 102, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.popup.active {
+  display: flex;
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+/* Position pop-ups around the center */
+#popup1 { top: 10%; left: 50%; transform: translateX(-50%); }
+#popup2 { top: 50%; left: 90%; transform: translateY(-50%); }
+#popup3 { top: 90%; left: 50%; transform: translateX(-50%); }
+#popup4 { top: 50%; left: 10%; transform: translateY(-50%); }
+
 </style>
 </head>
 <body>
 
-<!-- Loading screen -->
-<div id="loading-screen">
-    <div id="loading-text"></div>
+<!-- Boot Screen -->
+<div id="boot-screen" class="hidden">
+  <pre id="boot-text"></pre>
 </div>
 
-<!-- Password screen -->
+<!-- Password Screen -->
 <div id="password-screen">
-    <p>Enter Access Password:</p>
-    <input type="password" id="password" placeholder="••••••••">
-    <button onclick="checkPassword()">Enter</button>
+  <h1>Enter Access Password:</h1>
+  <input type="password" id="password-input" autofocus>
+  <button onclick="checkPassword()">Submit</button>
+  <p id="error-message"></p>
 </div>
 
-<!-- Menu screen -->
-<div id="menu-screen">
-    <h1>Batcomputer Database</h1>
-    <ul>
-        <li>Case Files</li>
-        <li>Gotham Surveillance</li>
-        <li>Vehicle Diagnostics</li>
-        <li>Criminal Records</li>
-    </ul>
+<!-- Menu Screen -->
+<div id="menu-screen" class="hidden">
+  <div class="container">
+    <div class="center"></div>
+
+    <!-- Pop-up sections -->
+    <div class="popup" id="popup1">📊 Graph 1 Content</div>
+    <div class="popup" id="popup2">📊 Graph 2 Content</div>
+    <div class="popup" id="popup3">🎥 Video Content</div>
+    <div class="popup" id="popup4">👥 Creators Info</div>
+  </div>
 </div>
+
+<audio id="alfred-audio" src="alfred-voice.mp3"></audio>
 
 <script>
-const loadingText = `Initializing secure connection...
-Establishing encrypted link...
-Accessing Wayne Enterprises mainframe...
-Loading Batcomputer protocols...
-Ready for password input.`;
-
-let i = 0;
-function typeLoadingText() {
-    if (i < loadingText.length) {
-        document.getElementById("loading-text").textContent += loadingText.charAt(i);
-        i++;
-        setTimeout(typeLoadingText, 50);
-    } else {
-        setTimeout(() => {
-            document.getElementById("loading-screen").style.display = "none";
-            document.getElementById("password-screen").style.display = "block";
-        }, 500);
-    }
-}
+const PASSWORD = "projectvoc";
+const bootLines = [
+  "Initializing secure system...",
+  "Loading Wayne Enterprises OS...",
+  "Accessing encrypted Batcomputer nodes...",
+  "Verifying biometric signature...",
+  "Connection established.",
+  "Welcome back, sir."
+];
 
 function checkPassword() {
-    const password = document.getElementById("password").value;
-    if (password.toLowerCase() === "projectvoc") {
-        document.getElementById("password-screen").style.display = "none";
-        document.getElementById("menu-screen").style.display = "block";
-        playAlfredVoice();
+  const input = document.getElementById('password-input').value;
+  if (input === PASSWORD) {
+    document.getElementById('password-screen').classList.add('hidden');
+    startBootSequence();
+  } else {
+    document.getElementById('error-message').innerText = "Access Denied";
+  }
+}
+
+function startBootSequence() {
+  document.getElementById('boot-screen').classList.remove('hidden');
+  const audio = document.getElementById('alfred-audio');
+  audio.play();
+  
+  const bootTextElement = document.getElementById('boot-text');
+  let lineIndex = 0;
+
+  function typeLine() {
+    if (lineIndex < bootLines.length) {
+      let charIndex = 0;
+      function typeChar() {
+        if (charIndex < bootLines[lineIndex].length) {
+          bootTextElement.textContent += bootLines[lineIndex][charIndex];
+          charIndex++;
+          setTimeout(typeChar, 50);
+        } else {
+          bootTextElement.textContent += "\n";
+          lineIndex++;
+          setTimeout(typeLine, 300);
+        }
+      }
+      typeChar();
     } else {
-        alert("ACCESS DENIED");
+      setTimeout(showMenu, 1000);
     }
+  }
+  typeLine();
 }
 
-function playAlfredVoice() {
-    const audio = new Audio("alfred.mp3"); 
-    audio.play();
+function showMenu() {
+  document.getElementById('boot-screen').classList.add('hidden');
+  document.getElementById('menu-screen').classList.remove('hidden');
 }
 
-window.onload = typeLoadingText;
+// Toggle pop-ups
+document.querySelectorAll('.popup').forEach(popup => {
+  popup.addEventListener('click', () => {
+    popup.classList.toggle('active');
+  });
+});
 </script>
 
 </body>
 </html>
-
