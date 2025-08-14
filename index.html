@@ -40,24 +40,23 @@
             pointer-events: none;
         }
 
-        /* Initial Loading Screen */
+        /* Initial Loading Screen - Fixed */
         #initial-loading {
             background: #000;
             color: #ff0000;
             font-family: 'VT323', monospace;
-            padding: 2rem;
-            width: 50%;
-            max-width: 600px;
-            border: 1px solid #ff0000;
+            padding: 4rem;
+            width: 100%;
+            height: 100%;
             text-align: left;
-            position: absolute;
-            top: 50px;
-            left: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         #initial-loading-text {
-            font-size: 18px;
-            line-height: 1.4;
+            font-size: 28px;
+            line-height: 1.6;
             white-space: pre-wrap;
         }
 
@@ -120,24 +119,23 @@
             margin: 0;
         }
 
-        /* Boot Screen */
+        /* Boot Screen - Fixed */
         #boot-screen {
             background: #000;
             color: #ff0000;
             font-family: 'VT323', monospace;
-            padding: 2rem;
-            width: 50%;
-            max-width: 600px;
-            border: 1px solid #ff0000;
+            padding: 4rem;
+            width: 100%;
+            height: 100%;
             text-align: left;
-            position: absolute;
-            top: 50px;
-            left: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         #boot-text {
-            font-size: 18px;
-            line-height: 1.4;
+            font-size: 28px;
+            line-height: 1.6;
             white-space: pre-wrap;
         }
 
@@ -153,6 +151,7 @@
             border: 1px solid #ff0000;
             display: flex;
             flex-direction: column;
+            margin: auto;
         }
 
         .header {
@@ -503,5 +502,3 @@
     </script>
 </body>
 </html>
-</html>
-
