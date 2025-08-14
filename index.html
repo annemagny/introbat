@@ -3,153 +3,211 @@
 <head>
 <meta charset="UTF-8">
 <title>Batcomputer Access</title>
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
 <style>
 body {
-  background-color: black;
-  color: #00ff66;
-  font-family: 'VT323', monospace;
-  font-size: 2rem;
-  padding: 20px;
-  margin: 0;
+    background: url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #00ff66;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.2rem;
+    margin: 0;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
-#boot-screen {
-  white-space: pre-wrap;
-  text-align: left;
+#boot-screen, #after-boot {
+    white-space: pre-wrap;
+    text-align: left;
+    padding: 20px;
+    background-color: rgba(0,0,0,0.7);
+    min-height: 100vh;
 }
 
 #password-screen {
-  text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: rgba(0,0,0,0.8);
 }
 
 #password-input {
-  font-family: 'VT323', monospace;
-  font-size: 1.5rem;
-  padding: 5px;
-  background-color: black;
-  color: #00ff66;
-  border: 1px solid #00ff66;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.2rem;
+    padding: 5px;
+    background-color: black;
+    color: #00ff66;
+    border: 1px solid #00ff66;
+    margin-top: 15px;
 }
 
 button {
-  font-family: 'VT323', monospace;
-  font-size: 1.5rem;
-  background-color: black;
-  color: #00ff66;
-  border: 1px solid #00ff66;
-  padding: 5px 10px;
-  cursor: pointer;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.2rem;
+    background-color: black;
+    color: #00ff66;
+    border: 1px solid #00ff66;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
-ul {
-  list-style-type: none;
-  padding-left: 0;
+#bat-logo {
+    width: 200px;
+    margin-bottom: 20px;
 }
 
-ul li {
-  margin: 10px 0;
+#main-content {
+    position: relative;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.6);
+    overflow: hidden;
 }
 
-/* ========================
-   Batcomputer Menu Layout
-   ======================== */
-
-#menu-screen {
-  width: 100%;
-  height: 100vh;
-  position: relative;
-}
-
-.container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.center {
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  background: url('bat-symbol.png') no-repeat center center;
-  background-size: contain;
-  z-index: 10;
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-.center:hover {
-  transform: scale(1.1);
-}
-
+/* Pop-up windows */
 .popup {
-  position: absolute;
-  width: 220px;
-  height: 220px;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: #00ff66;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 255, 102, 0.2);
-  cursor: pointer;
-  transition: transform 0.3s, opacity 0.3s;
+    position: absolute;
+    background-color: rgba(0,0,0,0.85);
+    border: 2px solid #00ff66;
+    border-radius: 10px;
+    padding: 10px;
+    color: #00ff66;
+    text-align: center;
+    box-shadow: 0 0 15px #00ff66;
+    width: 200px;
+    cursor: move;
 }
 
-.popup.active {
-  display: flex;
-  transform: scale(1.05);
-  opacity: 1;
+img, video {
+    max-width: 100%;
+    border-radius: 5px;
 }
-
-#popup1 { top: 10%; left: 50%; transform: translateX(-50%); }
-#popup2 { top: 50%; left: 90%; transform: translateY(-50%); }
-#popup3 { top: 90%; left: 50%; transform: translateX(-50%); }
-#popup4 { top: 50%; left: 10%; transform: translateY(-50%); }
-
 </style>
 </head>
 <body>
 
-<!-- Boot Screen -->
-<div id="boot-screen" class="hidden">
-  <pre id="boot-text"></pre>
+<div id="boot-screen"></div>
+
+<div id="password-screen" class="hidden">
+    <img id="bat-logo" src="batlogo.png" alt="Batman Logo">
+    <div>ACCESS PASSWORD:</div>
+    <input type="password" id="password-input">
+    <button onclick="checkPassword()">ENTER</button>
 </div>
 
-<!-- Password Screen -->
-<div id="password-screen">
-  <h1>Enter Access Password:</h1>
-  <input type="password" id="password-input" autofocus>
-  <button onclick="checkPassword()">Submit</button>
-  <p id="error-message"></p>
+<div id="after-boot" class="hidden"></div>
+
+<div id="main-content" class="hidden">
+    <div class="popup" id="box1" style="top:10%; left:10%"><h3>Logo</h3><img src="batlogo.png"></div>
+    <div class="popup" id="box2" style="top:10%; right:10%"><h3>Graph 1</h3><img src="graph1.png"></div>
+    <div class="popup" id="box3" style="top:35%; left:5%"><h3>Graph 2</h3><img src="graph2.png"></div>
+    <div class="popup" id="box4" style="top:35%; right:5%"><h3>Video Feed</h3><video src="video.mp4" autoplay loop muted></video></div>
+    <div class="popup" id="box5" style="bottom:10%; left:10%"><h3>Creators</h3><p>Bruce Wayne</p><p>Lucius Fox</p></div>
+    <div class="popup" id="box6" style="bottom:10%; right:10%"><h3>Alerts</h3><p>City-wide alerts active</p></div>
+    <div class="popup" id="box7" style="top:50%; left:50%; transform:translate(-50%,-50%)"><h3>Mission Brief</h3><p>All systems nominal</p></div>
 </div>
 
-<!-- Menu Screen -->
-<div id="menu-screen" class="hidden">
-  <div class="container">
-    <div class="center"></div>
+<script>
+const bootLinesBefore = [
+    "Initializing WayneTech OS v7.3...",
+    "Powering up Batcave systems...",
+    "Loading encrypted databases...",
+    "Activating satellite uplinks...",
+    "Awaiting authentication..."
+];
 
-    <div class="popup" id="popup1">📊 Graph 1 Content</div>
-    <div class="popup" id="popup2">📊 Graph 2 Content</div>
-    <div class="popup" id="popup3">🎥 Video Content</div>
-    <div class="popup" id="popup4">👥 Creators Info</div>
-  </div>
-</div>
+const bootLinesAfter = [
+    "Password accepted.",
+    "Decrypting secure files...",
+    "Loading mission data...",
+    "Engaging remote vehicle systems...",
+    "All Batcomputer modules online."
+];
 
-<audio id="alfred-audio" src="alfred-voice.mp3"></audio>
+const bootScreen = document.getElementById("boot-screen");
+const passwordScreen = document.getElementById("password-screen");
+const afterBoot = document.getElementById("after-boot");
+const mainContent = document.getElementById("main-content");
 
-<!-- External JavaScript -->
-<script src="script.js"></script>
+function typeBootLines(lines, element, callback) {
+    let index = 0;
+    function typeLine() {
+        if(index < lines.length){
+            element.textContent += lines[index] + "\n";
+            index++;
+            setTimeout(typeLine,700);
+        } else {
+            if(callback) callback();
+        }
+    }
+    typeLine();
+}
 
+function startBoot(){
+    typeBootLines(bootLinesBefore, bootScreen, ()=>{
+        setTimeout(()=>{
+            bootScreen.classList.add("hidden");
+            passwordScreen.classList.remove("hidden");
+        },500);
+    });
+}
+
+function checkPassword(){
+    const password = document.getElementById("password-input").value;
+    if(password === "projectvoc"){
+        passwordScreen.classList.add("hidden");
+        afterBoot.classList.remove("hidden");
+        typeBootLines(bootLinesAfter, afterBoot, ()=>{
+            setTimeout(()=>{
+                afterBoot.classList.add("hidden");
+                mainContent.classList.remove("hidden");
+            },500);
+        });
+    } else {
+        alert("Access Denied.");
+    }
+}
+
+// Draggable functionality
+function makeDraggable(el){
+    let pos1=0,pos2=0,pos3=0,pos4=0;
+    el.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e){
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e){
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        el.style.top = (el.offsetTop - pos2) + "px";
+        el.style.left = (el.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement(){
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
+// Apply draggable to all popups
+window.onload = ()=>{
+    startBoot();
+    const boxes = document.querySelectorAll('.popup');
+    boxes.forEach(box=>makeDraggable(box));
+}
+</script>
 </body>
 </html>
